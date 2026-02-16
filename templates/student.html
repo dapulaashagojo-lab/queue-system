@@ -119,3 +119,406 @@
             text-align: center;
         }
         
+        .current-number {
+            font-size: 3rem;
+            font-weight: 800;
+            margin: 10px 0;
+        }
+        
+        .section-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin: 25px 0;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #e8eaf6;
+            color: #1a237e;
+        }
+        
+        .transaction-purpose {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin: 25px 0;
+        }
+        
+        .purpose-btn {
+            padding: 20px;
+            background: #e8eaf6;
+            border-radius: 10px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .purpose-btn i {
+            font-size: 2rem;
+        }
+        
+        .purpose-btn.selected {
+            background: #1a237e;
+            color: white;
+        }
+        
+        .join-queue-btn {
+            width: 100%;
+            padding: 20px;
+            background: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            margin: 25px 0;
+        }
+        
+        .join-queue-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .status-card {
+            background: #e8eaf6;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border-left: 5px solid #1a237e;
+        }
+        
+        .queue-info-section {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+        }
+        
+        .info-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .cancel-btn {
+            background: #f44336 !important;
+        }
+        
+        .start-again-btn {
+            width: 100%;
+            padding: 20px;
+            background: #1a237e;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+            margin: 25px 0;
+        }
+        
+        .start-again-btn.show {
+            display: block;
+        }
+        
+        .feedback-submitted {
+            background: #4caf50;
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin: 25px 0;
+            display: none;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .feedback-submitted.show {
+            display: flex;
+        }
+        
+        .feedback-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 2000;
+            opacity: 0;
+            visibility: hidden;
+            transition: 0.3s;
+        }
+        
+        .feedback-modal.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .feedback-container {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: 15px;
+            padding: 30px;
+        }
+        
+        .star-rating {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin: 25px 0;
+            flex-direction: row-reverse;
+        }
+        
+        .star-rating input {
+            display: none;
+        }
+        
+        .star-rating label {
+            font-size: 2.5rem;
+            color: #ddd;
+            cursor: pointer;
+        }
+        
+        .star-rating label:hover,
+        .star-rating input:checked ~ label {
+            color: #ffc107;
+        }
+        
+        .feedback-text textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e8eaf6;
+            border-radius: 10px;
+            margin: 15px 0;
+            min-height: 100px;
+        }
+        
+        .feedback-buttons {
+            display: flex;
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .feedback-btn {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .submit-feedback {
+            background: #4caf50;
+            color: white;
+        }
+        
+        .skip-feedback {
+            background: #e8eaf6;
+        }
+        
+        .notification {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            padding: 15px 25px;
+            border-radius: 10px;
+            color: white;
+            z-index: 1000;
+            transform: translateX(150%);
+            transition: 0.5s;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification.success { background: #4caf50; }
+        .notification.info { background: #1a237e; }
+        .notification.warning { background: #ff9800; }
+        .notification.danger { background: #f44336; }
+        
+        footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #eee;
+        }
+        
+        @media (max-width: 768px) {
+            .transaction-purpose {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .admin-link {
+                position: static;
+                margin-bottom: 10px;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-link">
+        <a href="/login" class="admin-btn">
+            <i class="fas fa-user-tie"></i> Staff Login
+        </a>
+    </div>
+
+    <div class="container">
+        <header>
+            <div class="logo-container">
+                <div class="logo-fallback" id="studentLogoFallback">
+                    <i class="fas fa-school"></i>
+                    <div class="logo-text">
+                        <h1>FIDELIS</h1>
+                        <h2>SENIOR HIGH</h2>
+                        <p>The Higher School Network of FAITH</p>
+                    </div>
+                </div>
+                <img src="{{ url_for('static', filename='images/FSHLogo.png') }}" 
+                     class="header-logo" id="schoolLogo"
+                     style="display: none; height: 60px;"
+                     onerror="this.style.display='none'; document.getElementById('studentLogoFallback').style.display='flex';"
+                     onload="this.style.display='block'; document.getElementById('studentLogoFallback').style.display='none';">
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="queue-card">
+                <h3>Your Queue Number</h3>
+                <div class="queue-number" id="studentQueueNumber">---</div>
+                <div class="waiting-time clickable" id="waitingTime" onclick="scrollToTransactionSection()">
+                    <i class="fas fa-arrow-down"></i> Select a transaction
+                </div>
+                <p><i class="fas fa-bell"></i> Proceed when called</p>
+            </div>
+
+            <div class="current-serving">
+                <h4><i class="fas fa-bullhorn"></i> Currently Serving</h4>
+                <div class="current-number" id="currentServingNumber">---</div>
+                <div id="currentTransactionType">No active transaction</div>
+            </div>
+
+            <div class="section-title">
+                <i class="fas fa-tasks"></i>
+                <h2>Select Transaction Purpose</h2>
+            </div>
+            
+            <div class="transaction-purpose">
+                <div class="purpose-btn" data-purpose="enrollment">
+                    <i class="fas fa-file-signature"></i>
+                    <div>Enrollment</div>
+                </div>
+                <div class="purpose-btn" data-purpose="documents">
+                    <i class="fas fa-file-download"></i>
+                    <div>Documents</div>
+                </div>
+                <div class="purpose-btn" data-purpose="inquiry">
+                    <i class="fas fa-question-circle"></i>
+                    <div>Inquiries</div>
+                </div>
+                <div class="purpose-btn" data-purpose="grades">
+                    <i class="fas fa-chart-line"></i>
+                    <div>Grades</div>
+                </div>
+            </div>
+
+            <button class="join-queue-btn" id="joinQueueBtn" disabled>
+                <i class="fas fa-plus-circle"></i> Get Queue Number
+            </button>
+
+            <div class="status-card" id="studentStatus">
+                <i class="fas fa-info-circle fa-2x" style="color: #1a237e;"></i>
+                <div><strong>Status:</strong> Select a transaction</div>
+            </div>
+
+            <div class="queue-info-section">
+                <h4><i class="fas fa-clock"></i> Queue Information</h4>
+                <div class="info-item">
+                    <span>Students Ahead:</span>
+                    <span id="studentsAhead">0</span>
+                </div>
+                <div class="info-item">
+                    <span>Estimated Wait:</span>
+                    <span id="estimatedWaitDetail">-- minutes</span>
+                </div>
+                <div class="info-item">
+                    <span>Your Position:</span>
+                    <span id="yourPosition">--</span>
+                </div>
+            </div>
+            
+            <div class="feedback-submitted" id="feedbackSubmittedCard">
+                <i class="fas fa-star"></i>
+                <div>Thank you! Rating: <span id="submittedRating">5</span>/5</div>
+            </div>
+            
+            <button class="start-again-btn" id="startAgainBtn" onclick="startNewTransaction()">
+                <i class="fas fa-redo"></i> Start New Transaction
+            </button>
+            
+            <div class="cancel-section" style="display: none; margin-top: 25px;" id="cancelSection">
+                <button class="join-queue-btn cancel-btn" id="cancelTransactionBtn">
+                    <i class="fas fa-times-circle"></i> Cancel My Transaction
+                </button>
+            </div>
+        </div>
+
+        <footer>
+            <p>Fidelis Senior High Registrar Queue System &copy; 2026</p>
+        </footer>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div class="feedback-modal" id="feedbackModal">
+        <div class="feedback-container">
+            <h3 style="text-align: center; color: #1a237e;">How was your experience?</h3>
+            
+            <div id="feedbackForm">
+                <div class="star-rating">
+                    <input type="radio" id="star5" name="rating" value="5"><label for="star5">★</label>
+                    <input type="radio" id="star4" name="rating" value="4"><label for="star4">★</label>
+                    <input type="radio" id="star3" name="rating" value="3"><label for="star3">★</label>
+                    <input type="radio" id="star2" name="rating" value="2"><label for="star2">★</label>
+                    <input type="radio" id="star1" name="rating" value="1"><label for="star1">★</label>
+                </div>
+                
+                <div class="feedback-text">
+                    <textarea id="feedbackComments" placeholder="Optional comments..." maxlength="500"></textarea>
+                    <div style="text-align: right;"><span id="charCount">0</span>/500</div>
+                </div>
+                
+                <div class="feedback-buttons">
+                    <button class="feedback-btn skip-feedback" id="skipFeedbackBtn">Skip</button>
+                    <button class="feedback-btn submit-feedback" id="submitFeedbackBtn">Submit</button>
+                </div>
+            </div>
+            
+            <div class="thank-you-message" id="thankYouMessage" style="display: none; text-align: center;">
+                <h3 style="color: #4caf50;">Thank You!</h3>
+                <p>Starting new transaction in <span id="countdown">5</span>s</p>
+                <button class="start-again-btn" onclick="startNewTransaction()" style="display: inline-block;">Start Now</button>
+            </div>
+        </div>
+    </div>
+
+    <div class="notification" id="notification"></div>
+
+    <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
+    <script src="{{ url_for('static', filename='js/student.js') }}"></script>
+</body>
+</html>
