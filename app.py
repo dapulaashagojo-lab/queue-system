@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, session, redirect, url_for, send_from_directory
+from flask import Flask, render_template, request, jsonify, session, redirect, url_for
 from flask_socketio import SocketIO, emit
 from flask_cors import CORS
 from models import db, Admin, Student, Transaction, Feedback, SystemStats
@@ -205,31 +205,6 @@ def cancel_transaction():
     student.is_current = False
     db.session.commit()
     socketio.emit('transaction_cancelled', {'queueNumber': student.queue_number})
-    socketio.emit('queue_updated', {})
-    return jsonify({'success': True})
-
-@app.route('/api/queue/cancel-student', methods=['POST'])
-def cancel_student_transaction():
-    data = request.json
-    student = Student.query.filter_by(queue_number=data.get('queueNumber'), status='waiting').first()
-    if not student:
-        return jsonify({'error': 'Transaction not found'}), 404
-    
-    wait_time = int((datetime.utcnow() - student.joined_at).total_seconds() / 60)
-    
-    transaction = Transaction(
-        queue_number=student.queue_number,
-        student_name=student.student_name,
-        transaction_type=student.purpose_text,
-        joined_at=student.joined_at,
-        completed_at=datetime.utcnow(),
-        waiting_time=wait_time,
-        status='Cancelled by Student',
-        served_by='Student Self-Cancelled'
-    )
-    db.session.add(transaction)
-    db.session.delete(student)
-    db.session.commit()
     socketio.emit('queue_updated', {})
     return jsonify({'success': True})
 
