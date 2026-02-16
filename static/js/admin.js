@@ -48,6 +48,7 @@ async function loadDashboard() {
 }
 
 function updateDashboard(queueData, statsData) {
+    // Update current serving
     const currentServingEl = document.getElementById('currentServing');
     const currentTransactionEl = document.getElementById('currentTransaction');
     const completeBtn = document.getElementById('completeBtn');
@@ -65,6 +66,7 @@ function updateDashboard(queueData, statsData) {
         cancelBtn.disabled = true;
     }
     
+    // Update queue list
     const queueListEl = document.getElementById('queueList');
     const queueCountEl = document.getElementById('queueCount');
     const callNextBtn = document.getElementById('callNextBtn');
@@ -81,11 +83,11 @@ function updateDashboard(queueData, statsData) {
                     <div class="queue-badge">#${student.number}</div>
                     <div>
                         <div><strong>${student.purposeText}</strong></div>
-                        <div class="waiting-time">${student.studentName}</div>
+                        <div>${student.studentName}</div>
                     </div>
                 </div>
                 <div class="waiting-time">
-                    ${index === 0 ? 'Next in line' : `Wait: ~${waitTime} min`}
+                    ${index === 0 ? 'Next' : `~${waitTime} min`}
                 </div>
             `;
             queueListEl.appendChild(queueItem);
@@ -94,18 +96,12 @@ function updateDashboard(queueData, statsData) {
         queueCountEl.textContent = `${queueData.queue.length} waiting`;
         callNextBtn.disabled = false;
     } else {
-        queueListEl.innerHTML = `
-            <div class="queue-item empty-queue">
-                <div class="queue-info">
-                    <i class="fas fa-info-circle"></i>
-                    <span>No students in queue</span>
-                </div>
-            </div>
-        `;
+        queueListEl.innerHTML = '<div class="queue-item">No students in queue</div>';
         queueCountEl.textContent = '0 waiting';
         callNextBtn.disabled = true;
     }
     
+    // Update stats
     document.getElementById('servedToday').textContent = statsData.servedToday || 0;
     document.getElementById('avgWaitTime').textContent = statsData.avgWaitTime || 0;
     document.getElementById('waitingStudents').textContent = statsData.waitingStudents || 0;
@@ -116,26 +112,23 @@ function updateDashboard(queueData, statsData) {
 
 async function callNextStudent() {
     try {
-        const response = await fetch('/api/queue/call-next', { 
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' }
-        });
+        const response = await fetch('/api/queue/call-next', { method: 'POST' });
         const data = await response.json();
         
         if (data.success) {
-            showNotification(`Called student #${data.student.number} for ${data.student.purposeText}`, 'success');
+            showNotification(`Called #${data.student.number}`, 'success');
         } else {
-            showNotification(data.error || 'No students in queue', 'warning');
+            showNotification(data.error || 'No students', 'warning');
         }
     } catch (error) {
-        showNotification('Error calling next student', 'danger');
+        showNotification('Error', 'danger');
     }
 }
 
 async function completeCurrent() {
-    const currentServing = document.getElementById('currentServing').textContent;
-    if (currentServing === '---') {
-        showNotification('No active transaction to complete!', 'warning');
+    const current = document.getElementById('currentServing').textContent;
+    if (current === '---') {
+        showNotification('No active transaction', 'warning');
         return;
     }
     
@@ -143,42 +136,38 @@ async function completeCurrent() {
         const response = await fetch('/api/queue/complete', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ queueNumber: parseInt(currentServing) })
+            body: JSON.stringify({ queueNumber: parseInt(current) })
         });
         
         if (response.ok) {
-            showNotification('Transaction completed successfully', 'success');
-            loadDashboard();
+            showNotification('Completed', 'success');
         }
     } catch (error) {
-        showNotification('Error completing transaction', 'danger');
+        showNotification('Error', 'danger');
     }
 }
 
 async function cancelCurrent() {
-    const currentServing = document.getElementById('currentServing').textContent;
-    if (currentServing === '---') {
-        showNotification('No active transaction to cancel!', 'warning');
+    const current = document.getElementById('currentServing').textContent;
+    if (current === '---') {
+        showNotification('No active transaction', 'warning');
         return;
     }
     
-    if (!confirm('Are you sure you want to cancel this transaction?')) {
-        return;
-    }
+    if (!confirm('Cancel this transaction?')) return;
     
     try {
         const response = await fetch('/api/queue/cancel', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ queueNumber: parseInt(currentServing) })
+            body: JSON.stringify({ queueNumber: parseInt(current) })
         });
         
         if (response.ok) {
-            showNotification('Transaction cancelled', 'danger');
-            loadDashboard();
+            showNotification('Cancelled', 'danger');
         }
     } catch (error) {
-        showNotification('Error cancelling transaction', 'danger');
+        showNotification('Error', 'danger');
     }
 }
 
@@ -194,23 +183,24 @@ async function showSystemLog() {
         tbody.innerHTML = '';
         
         if (transactions.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 30px;">No transaction logs available</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6">No logs</td></tr>';
             return;
         }
         
         transactions.forEach(t => {
-            const row = tbody.insertRow();
-            row.innerHTML = `
-                <td>${t.date}</td>
-                <td><strong>#${t.queueNumber}</strong></td>
-                <td>${t.studentName}</td>
-                <td>${t.transactionType}</td>
-                <td>${t.waitingTime || 0}</td>
-                <td class="${t.status === 'Completed' ? 'status-completed' : 'status-cancelled'}">${t.status}</td>
+            tbody.innerHTML += `
+                <tr>
+                    <td>${t.date}</td>
+                    <td>#${t.queueNumber}</td>
+                    <td>${t.studentName}</td>
+                    <td>${t.transactionType}</td>
+                    <td>${t.waitingTime || 0}</td>
+                    <td class="${t.status === 'Completed' ? 'status-completed' : 'status-cancelled'}">${t.status}</td>
+                </tr>
             `;
         });
     } catch (error) {
-        console.error('Error loading transactions:', error);
+        console.error(error);
     }
 }
 
@@ -235,47 +225,25 @@ async function showFeedbackPanel() {
         content.innerHTML = '';
         
         feedbacks.forEach(f => {
-            const card = document.createElement('div');
-            card.className = 'feedback-card';
-            card.innerHTML = `
-                <div style="display: flex; justify-content: space-between;">
-                    <strong>Queue #${f.queueNumber}</strong>
-                    <small>${new Date(f.submittedAt).toLocaleDateString()}</small>
+            content.innerHTML += `
+                <div class="feedback-card">
+                    <div><strong>#${f.queueNumber}</strong> <small>${new Date(f.submittedAt).toLocaleDateString()}</small></div>
+                    <div>${'★'.repeat(f.rating)}${'☆'.repeat(5-f.rating)} ${f.rating}/5</div>
+                    ${f.comments ? `<div>"${f.comments}"</div>` : ''}
                 </div>
-                <div style="margin: 10px 0;">${f.transactionType || 'Transaction'}</div>
-                <div class="star-rating-display">
-                    ${createStarsHTML(f.rating)}
-                    <span style="margin-left: 10px;">${f.rating}/5</span>
-                </div>
-                ${f.comments ? `<div class="feedback-comment">"${f.comments}"</div>` : ''}
             `;
-            content.appendChild(card);
         });
     } catch (error) {
-        console.error('Error loading feedback:', error);
+        console.error(error);
     }
-}
-
-function createStarsHTML(rating) {
-    let html = '<span class="star-display">';
-    for (let i = 1; i <= 5; i++) {
-        html += i <= rating ? '<i class="fas fa-star filled"></i>' : '<i class="far fa-star"></i>';
-    }
-    html += '</span>';
-    return html;
 }
 
 async function resetSystemLog() {
-    if (confirm('Are you sure you want to reset the system log? This will clear all transaction history.')) {
-        try {
-            await fetch('/api/stats/reset', { method: 'POST' });
-            showNotification('System log has been reset', 'info');
-            
-            if (document.getElementById('systemLogPanel').style.display === 'block') {
-                showSystemLog();
-            }
-        } catch (error) {
-            showNotification('Error resetting log', 'danger');
+    if (confirm('Reset all transaction history?')) {
+        await fetch('/api/stats/reset', { method: 'POST' });
+        showNotification('Log reset', 'info');
+        if (document.getElementById('systemLogPanel').style.display === 'block') {
+            showSystemLog();
         }
     }
 }
@@ -286,48 +254,23 @@ async function downloadExcel() {
         const transactions = await response.json();
         
         if (transactions.length === 0) {
-            showNotification('No transaction data to export', 'warning');
+            showNotification('No data', 'warning');
             return;
         }
-
-        let csvContent = "data:text/csv;charset=utf-8,";
-        csvContent += "Date,Queue Number,Student Name,Transaction Type,Waiting Time (minutes),Status\n";
-
-        transactions.forEach(log => {
-            const row = [
-                log.date,
-                log.queueNumber,
-                `"${log.studentName}"`,
-                `"${log.transactionType}"`,
-                log.waitingTime || 0,
-                log.status
-            ].join(',');
-            csvContent += row + "\n";
+        
+        let csv = "Date,Queue,Student,Transaction,Wait,Status\n";
+        transactions.forEach(t => {
+            csv += `${t.date},${t.queueNumber},"${t.studentName}","${t.transactionType}",${t.waitingTime || 0},${t.status}\n`;
         });
-
-        const stats = await fetch('/api/stats').then(res => res.json());
         
-        csvContent += "\n\nSUMMARY\n";
-        csvContent += `Total Transactions,${transactions.length}\n`;
-        csvContent += `Average Wait Time (minutes),${stats.avgWaitTime || 0}\n`;
-        csvContent += `Generated On,${new Date().toLocaleDateString()}\n`;
-
-        const encodedUri = encodeURI(csvContent);
-        const link = document.createElement("a");
-        link.setAttribute("href", encodedUri);
-        
-        const today = new Date();
-        const dateStr = today.toISOString().split('T')[0];
-        link.setAttribute("download", `registrar_transactions_${dateStr}.csv`);
-        
-        document.body.appendChild(link);
+        const link = document.createElement('a');
+        link.href = encodeURI('data:text/csv;charset=utf-8,' + csv);
+        link.download = `transactions_${new Date().toISOString().split('T')[0]}.csv`;
         link.click();
-        document.body.removeChild(link);
-
-        showNotification('Transaction log downloaded successfully', 'success');
+        
+        showNotification('Downloaded', 'success');
     } catch (error) {
-        console.error('Download error:', error);
-        showNotification('Error downloading file', 'danger');
+        showNotification('Error', 'danger');
     }
 }
 
@@ -341,7 +284,7 @@ function closeLogPanel() {
 
 function refreshDashboard() {
     loadDashboard();
-    showNotification('Dashboard refreshed', 'info');
+    showNotification('Refreshed', 'info');
 }
 
 function viewStudentPage() {
@@ -349,21 +292,13 @@ function viewStudentPage() {
 }
 
 async function logout() {
-    try {
-        await fetch('/api/logout', { method: 'POST' });
-        window.location.href = '/login';
-    } catch (error) {
-        console.error('Logout error:', error);
-        window.location.href = '/login';
-    }
+    await fetch('/api/logout', { method: 'POST' });
+    window.location.href = '/login';
 }
 
 function showNotification(message, type) {
-    const notificationEl = document.getElementById('notification');
-    notificationEl.textContent = message;
-    notificationEl.className = `notification ${type} show`;
-    
-    setTimeout(() => {
-        notificationEl.classList.remove('show');
-    }, 3000);
+    const el = document.getElementById('notification');
+    el.textContent = message;
+    el.className = `notification ${type} show`;
+    setTimeout(() => el.classList.remove('show'), 3000);
 }
