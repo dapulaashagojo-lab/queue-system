@@ -7,3 +7,4 @@ python-socketio==5.9.0
 python-engineio==4.7.0
 Werkzeug==2.3.7
 setuptools==68.2.2
+eventlet==0.33.3
