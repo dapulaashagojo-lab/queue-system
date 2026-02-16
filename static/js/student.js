@@ -5,7 +5,6 @@ let checkForUpdatesInterval = null;
 let autoReloadCountdown = null;
 let isCurrentlyBeingCalled = false;
 let soundEnabled = false;
-let ringtoneStyle = 'classic';
 
 // DOM Elements
 const studentQueueNumberEl = document.getElementById('studentQueueNumber');
@@ -41,12 +40,6 @@ document.addEventListener('DOMContentLoaded', function() {
     initSocket();
     checkForExistingQueue();
     loadCurrentServing();
-    
-    // Load saved ringtone preference
-    const savedRingtone = localStorage.getItem('ringtoneStyle');
-    if (savedRingtone) {
-        ringtoneStyle = savedRingtone;
-    }
     
     checkForUpdatesInterval = setInterval(() => {
         checkForUpdates();
@@ -104,153 +97,48 @@ function initSocket() {
     });
 }
 
-// Ringtone Functions
-function setRingtone(style) {
-    ringtoneStyle = style;
-    localStorage.setItem('ringtoneStyle', style);
-    showNotification(`Ringtone changed to ${style}`, 'info');
-}
-
+// FIXED: Sound function using AudioContext (works on all browsers)
 function playCallSound() {
     if (!soundEnabled) return;
     
     try {
+        // Use Web Audio API for guaranteed sound
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         
-        switch(ringtoneStyle) {
-            case 'classic':
-                playClassicRing(audioContext);
-                break;
-            case 'modern':
-                playModernRing(audioContext);
-                break;
-            case 'retro':
-                playRetroRing(audioContext);
-                break;
-            case 'doorbell':
-                playDoorbellRing(audioContext);
-                break;
-            default:
-                playClassicRing(audioContext);
+        // Create a simple beep pattern (3 beeps)
+        for (let i = 0; i < 3; i++) {
+            setTimeout(() => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+                
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+                
+                oscillator.frequency.value = 800;
+                oscillator.type = 'sine';
+                
+                gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+                gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.2);
+                
+                oscillator.start(audioContext.currentTime);
+                oscillator.stop(audioContext.currentTime + 0.2);
+            }, i * 300);
         }
+        
+        console.log('Playing sound with Web Audio API');
+        
     } catch (e) {
         console.log('Audio error:', e);
-        // Fallback beep
+        // Fallback - try to use simple beep
         try {
             const audio = new Audio();
             audio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
             audio.volume = 0.8;
-            audio.play();
-        } catch (e2) {}
+            audio.play().catch(e => console.log('Fallback audio failed'));
+        } catch (e2) {
+            console.log('All audio methods failed');
+        }
     }
-}
-
-function playClassicRing(context) {
-    for (let i = 0; i < 3; i++) {
-        setTimeout(() => {
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.connect(gain);
-            gain.connect(context.destination);
-            osc.frequency.value = 800;
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.3, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.2);
-            osc.start(context.currentTime);
-            osc.stop(context.currentTime + 0.2);
-        }, i * 600);
-        
-        setTimeout(() => {
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.connect(gain);
-            gain.connect(context.destination);
-            osc.frequency.value = 1000;
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.3, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.2);
-            osc.start(context.currentTime);
-            osc.stop(context.currentTime + 0.2);
-        }, i * 600 + 200);
-    }
-}
-
-function playModernRing(context) {
-    const notes = [523.25, 659.25, 783.99, 1046.50];
-    notes.forEach((freq, index) => {
-        setTimeout(() => {
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.connect(gain);
-            gain.connect(context.destination);
-            osc.frequency.value = freq;
-            osc.type = 'sine';
-            gain.gain.setValueAtTime(0.2, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
-            osc.start(context.currentTime);
-            osc.stop(context.currentTime + 0.1);
-        }, index * 150);
-    });
-    
-    setTimeout(() => {
-        playModernRing(context);
-    }, 600);
-}
-
-function playRetroRing(context) {
-    for (let i = 0; i < 4; i++) {
-        setTimeout(() => {
-            const osc = context.createOscillator();
-            const gain = context.createGain();
-            osc.connect(gain);
-            gain.connect(context.destination);
-            osc.frequency.value = 600;
-            osc.type = 'square';
-            gain.gain.setValueAtTime(0.2, context.currentTime);
-            gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
-            osc.start(context.currentTime);
-            osc.stop(context.currentTime + 0.1);
-            
-            setTimeout(() => {
-                const osc2 = context.createOscillator();
-                const gain2 = context.createGain();
-                osc2.connect(gain2);
-                gain2.connect(context.destination);
-                osc2.frequency.value = 400;
-                osc2.type = 'square';
-                gain2.gain.setValueAtTime(0.2, context.currentTime);
-                gain2.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.1);
-                osc2.start(context.currentTime);
-                osc2.stop(context.currentTime + 0.1);
-            }, 100);
-        }, i * 800);
-    }
-}
-
-function playDoorbellRing(context) {
-    const osc = context.createOscillator();
-    const gain = context.createGain();
-    osc.connect(gain);
-    gain.connect(context.destination);
-    osc.frequency.value = 880;
-    osc.type = 'sine';
-    gain.gain.setValueAtTime(0.3, context.currentTime);
-    gain.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
-    osc.start(context.currentTime);
-    osc.stop(context.currentTime + 0.3);
-    
-    setTimeout(() => {
-        const osc2 = context.createOscillator();
-        const gain2 = context.createGain();
-        osc2.connect(gain2);
-        gain2.connect(context.destination);
-        osc2.frequency.value = 659.25;
-        osc2.type = 'sine';
-        gain2.gain.setValueAtTime(0.3, context.currentTime);
-        gain2.gain.exponentialRampToValueAtTime(0.01, context.currentTime + 0.3);
-        osc2.start(context.currentTime);
-        osc2.stop(context.currentTime + 0.3);
-    }, 400);
 }
 
 async function checkForExistingQueue() {
@@ -393,6 +281,8 @@ async function updateStudentDisplay() {
                     </div>
                 `;
             }
+        } else if (data.status === 'called') {
+            // Will be handled by socket
         } else if (data.status === 'completed') {
             studentStatusEl.innerHTML = `
                 <i class="fas fa-check-circle fa-2x" style="color: var(--success-green);"></i>
@@ -547,11 +437,11 @@ function showNotification(message, type) {
     setTimeout(() => notificationEl.classList.remove('show'), 3000);
 }
 
-function checkForUpdates() {
+async function checkForUpdates() {
     if (studentQueueNumber) {
-        updateStudentDisplay();
+        await updateStudentDisplay();
     }
-    loadCurrentServing();
+    await loadCurrentServing();
 }
 
 window.addEventListener('beforeunload', function() {
