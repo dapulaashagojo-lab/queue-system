@@ -4,7 +4,9 @@ from flask_cors import CORS
 from models import db, Admin, Student, Transaction, Feedback, SystemStats
 from datetime import datetime, timedelta
 from functools import wraps
-import os  # ← ADD THIS LINE (for Render)
+import os
+import eventlet
+eventlet.monkey_patch()
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'your-secret-key-change-this'
@@ -12,7 +14,7 @@ app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///queue.db'
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 db.init_app(app)
-socketio = SocketIO(app, cors_allowed_origins="*")
+socketio = SocketIO(app, cors_allowed_origins="*", async_mode='threading')
 CORS(app)
 
 def login_required(f):
@@ -310,10 +312,6 @@ def get_statistics():
         'feedbackCount': feedback_count
     })
 
-# ===== UPDATED BOTTOM FOR RENDER =====
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
-
-
-
+    socketio.run(app, host='0.0.0.0', port=port)
