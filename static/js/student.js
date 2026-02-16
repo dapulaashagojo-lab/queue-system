@@ -97,15 +97,31 @@ function initSocket() {
     });
 }
 
-// FIXED: Sound function using AudioContext (works on all browsers)
+// FIXED: Play your notification.mp3 file
 function playCallSound() {
     if (!soundEnabled) return;
     
     try {
-        // Use Web Audio API for guaranteed sound
+        // Try to play your uploaded MP3 file
+        const audio = new Audio('/static/notification.mp3');
+        audio.volume = 0.8;
+        audio.play().catch(e => {
+            console.log('MP3 failed to load, using fallback sound', e);
+            playFallbackSound();
+        });
+        console.log('Playing notification.mp3');
+    } catch (e) {
+        console.log('Audio error:', e);
+        playFallbackSound();
+    }
+}
+
+// Fallback sound if MP3 doesn't load
+function playFallbackSound() {
+    try {
         const audioContext = new (window.AudioContext || window.webkitAudioContext)();
         
-        // Create a simple beep pattern (3 beeps)
+        // Create 3 beeps
         for (let i = 0; i < 3; i++) {
             setTimeout(() => {
                 const oscillator = audioContext.createOscillator();
@@ -124,20 +140,8 @@ function playCallSound() {
                 oscillator.stop(audioContext.currentTime + 0.2);
             }, i * 300);
         }
-        
-        console.log('Playing sound with Web Audio API');
-        
     } catch (e) {
-        console.log('Audio error:', e);
-        // Fallback - try to use simple beep
-        try {
-            const audio = new Audio();
-            audio.src = 'data:audio/wav;base64,UklGRigAAABXQVZFZm10IBIAAAABAAEARKwAAIhYAQACABAAZGF0YQQAAAAAAA==';
-            audio.volume = 0.8;
-            audio.play().catch(e => console.log('Fallback audio failed'));
-        } catch (e2) {
-            console.log('All audio methods failed');
-        }
+        console.log('Fallback audio failed');
     }
 }
 
